@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Interface</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Blockchain Interface</h1>
+        <div>
+            <button onclick="getBlockchain()">View Blockchain</button>
+            <div id="blockchainResult" class="result"></div>
+        </div>
+        <form id="transactionForm" onsubmit="createTransaction(event)">
+            <label for="sender">Sender</label>
+            <input type="text" id="sender" required />
+            <label for="recipient">Recipient</label>
+            <input type="text" id="recipient" required />
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" required />
+            <button type="submit">Create Transaction</button>
+        </form>
+        <div id="transactionResult" class="result"></div>
+        <button type="button" onclick="mineBlock()">Mine Block</button>
+        <div id="mineResult" class="result"></div>
+    </div>
+    <script>
+        const apiUrl = "http://localhost:3000";
+
+        // Fetch the blockchain
+        function getBlockchain() {
+            fetch(`${apiUrl}/blockchain`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('blockchainResult').innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('blockchainResult').innerText = "Error: " + error;
+                });
+        }
+
+        // Create a new transaction
+        function createTransaction(event) {
+            event.preventDefault();
+            const sender = document.getElementById('sender').value;
+            const recipient = document.getElementById('recipient').value;
+            const amount = document.getElementById('amount').value;
+
+            fetch(`${apiUrl}/transaction`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sender, recipient, amount })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('transactionResult').innerText = data.note;
+                })
+                .catch(error => {
+                    document.getElementById('transactionResult').innerText = "Error: " + error;
+                });
+        }
+
+        // Mine a block
+        function mineBlock() {
+            fetch(`${apiUrl}/mine`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('mineResult').innerText = `Note: ${data.note}\nBlock: ${JSON.stringify(data.block, null, 2)}`;
+                })
+                .catch(error => {
+                    document.getElementById('mineResult').innerText = "Error: " + error;
+                });
+        }
+    </script>
+</body>
+</html>
